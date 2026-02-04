@@ -1,0 +1,14 @@
+apiVersion: nais.io/v1alpha1
+kind: Application
+
+metadata:
+  labels:
+    team: frontend-golden-path
+  name: frontend-golden-path
+  namespace: frontend-golden-path
+
+spec:
+  ingresses:
+    - https://test-golden-path-pnpm.intern.dev.nav.no
+  image: {{image}}
+  port: 3000
