@@ -4,7 +4,7 @@ kind: Application
 metadata:
   labels:
     team: frontend-golden-path
-  name: frontend-golden-path
+  name: test-golden-path-pnpm
   namespace: frontend-golden-path
 
 spec:
