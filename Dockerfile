@@ -1,7 +1,7 @@
 FROM cgr.dev/chainguard/wolfi-base@sha256:1d95114038f76513a9ace6fca107d5582b08c65981f81f61cb56bf7fd2ef216d AS base
 
 # Install Node.js and enable pnpm
-RUN apk update && apk add --no-cache nodejs-20 npm && npm install -g corepack && corepack enable
+RUN apk update && apk add --no-cache nodejs-24 npm && npm install -g corepack && corepack enable
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -30,7 +30,7 @@ RUN pnpm run build
 FROM cgr.dev/chainguard/wolfi-base@sha256:1d95114038f76513a9ace6fca107d5582b08c65981f81f61cb56bf7fd2ef216d AS runtime
 
 # Install only Node.js runtime (no npm/corepack needed in runtime)
-RUN apk update && apk add --no-cache nodejs-20
+RUN apk update && apk add --no-cache nodejs-24
 
 WORKDIR /app
 
