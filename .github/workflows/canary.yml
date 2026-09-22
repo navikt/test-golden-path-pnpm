@@ -1,0 +1,49 @@
+name: Canary
+
+# Verifies the golden-path guide still works end-to-end by building and
+# running exactly what the Aksel article tells a learner to build. Runs
+# daily so pnpm/registry/base-image drift is caught here, not by a confused
+# learner following the guide.
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # 06:00 UTC daily
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  canary:
+    name: build, run, smoke-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        with:
+          persist-credentials: false
+
+      - name: Build docker image
+        run: docker build --secret id=NODE_AUTH_TOKEN . -t test-golden-path-pnpm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.READER_TOKEN }}
+
+      - name: Run and smoke-test container
+        run: |
+          docker run -d --name canary -p 3000:3000 test-golden-path-pnpm
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:3000 > /dev/null; then
+              echo "app responded"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "app never responded"
+          docker logs canary
+          exit 1
+
+      - name: Notify Slack on failure
+        if: failure()
+        run: |
+          curl -sf -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\":rotating_light: *test-golden-path-pnpm canary failed* — <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|see run>\"}" \
+            "${{ secrets.SLACK_WEBHOOK_URL }}"
