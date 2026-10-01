@@ -9,9 +9,6 @@ on:
   schedule:
     - cron: "0 6 * * *" # 06:00 UTC daily
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   canary:
